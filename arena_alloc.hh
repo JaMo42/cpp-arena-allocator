@@ -37,6 +37,9 @@ struct Allocator
   using propagate_on_container_move_assignment = std::true_type;
   using is_always_equal = std::true_type;
 
+  Allocator () { }
+  template <class U = T> Allocator (const Allocator<U> &) { }
+
   /**
    * @brief allocates uninitialized storage
    *
