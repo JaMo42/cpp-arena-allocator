@@ -1,6 +1,6 @@
 # cpp-arena-allocator
 
-Region based [STL allocator](https://en.cppreference.com/w/cpp/named_req/Allocator).
+Region based [allocator](https://en.cppreference.com/w/cpp/named_req/Allocator).
 
 ## The allocator
 
@@ -29,37 +29,47 @@ The allocator satisfies [allocator completeness requirements](https://en.cpprefe
 
 ### Member functions
 
-- `[[nodiscard]] T * allocate (std::size_t n, const T *hint = nullptr)`
+```cpp
+[[nodiscard]] T * allocate (std::size_t n, const T *hint = nullptr)
+```
 
-  Allocates `n * sizeof (T)` bytes of uninitialized storage.
-  If `hint` is provided, the allocator will try to place the new allocation in the same region as `hint`.
+Allocates `n * sizeof (T)` bytes of uninitialized storage.
+If `hint` is provided, the allocator will try to place the new allocation in the same region as `hint`.
 
-  If `n` is zero, a null pointer is returned.
+If `n` is zero, a null pointer is returned.
 
-- `void deallocate (T *p, std::size_t n)`
+---
 
-  Deallocates the storage referenced by the pointer `p`, which must be a pointer obtained by an earlier call to `allocate ()`.
-  The argument `n` must be equal to the first argument of the call to `allocate ()` that originally produced `p`.
+```cpp
+void deallocate (T *p, std::size_t n)
+```
 
-  If `p` is a null pointer, the function does nothing.
+Deallocates the storage referenced by the pointer `p`, which must be a pointer obtained by an earlier call to `allocate ()`.
+The argument `n` must be equal to the first argument of the call to `allocate ()` that originally produced `p`.
 
-- `[[nodiscard]] T * reallocate (T *p, std::size_t from_n, std::size_t to_n, const T *hint = nullptr)`
+If `p` is a null pointer, the function does nothing.
 
-  Reallocates the storage referenced by the pointer `p`, which must be a pointer obtained by an earlier call to `allocate ()` and not yet freed with `deallocate ()`.
+---
 
-  The reallocation is done by either:
+```cpp
+[[nodiscard]] T * reallocate (T *p, std::size_t from_n, std::size_t to_n, const T *hint = nullptr)
+```
 
-    a) expanding or contracting the existing allocation referenced by `p`, if possible.
-    The contents of the array remain unchanged up to the lesser of the new and old sizes.
-    If the allocation is expanded the contents of the new part of the array are undefined.
+Reallocates the storage referenced by the pointer `p`, which must be a pointer obtained by an earlier call to `allocate ()` and not yet freed with `deallocate ()`.
 
-    b) doing nothing, if the new size is less than the old size.
+The reallocation is done by either:
 
-    c) allocating a new array that can hold `to_n` objects, copying `from_n` objects, and deallocating the old allocation.
+- a) expanding or contracting the existing allocation referenced by `p`, if possible.
+  The contents of the array remain unchanged up to the lesser of the new and old sizes.
+  If the allocation is expanded the contents of the new part of the array are undefined.
 
-  If `p` is a null pointer, the behavior is the same as calling `allocate (to_n, hint)`.
+- b) doing nothing, if the new size is less than the old size.
 
-  If `to_n` is zero, the behavior is the same as calling `deallocate (p, from_n)`.
+- c) allocating a new array that can hold `to_n` objects, copying `from_n` objects, and deallocating the old allocation.
+
+If `p` is a null pointer, the behavior is the same as calling `allocate (to_n, hint)`.
+
+If `to_n` is zero, the behavior is the same as calling `deallocate (p, from_n)`.
 
 ### Non-member functions
 
