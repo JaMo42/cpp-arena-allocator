@@ -45,13 +45,13 @@ The allocator satisfies [allocator completeness requirements](https://en.cpprefe
 
 - `[[nodiscard]] T * reallocate (T *p, std::size_t from_n, std::size_t to_n, const T *hint = nullptr)`
 
-  Reallocates the storage referenced by the pointer `p`, wich must be a pointer obtained by an earlier call to `allocate ()` and not yet freed with `deallocate ()`.
+  Reallocates the storage referenced by the pointer `p`, which must be a pointer obtained by an earlier call to `allocate ()` and not yet freed with `deallocate ()`.
 
   The reallocation is done by either:
 
     a) expanding or contracting the existing allocation referenced by `p`, if possible.
     The contents of the array remain unchanged up to the lesser of the new and old sizes.
-    If the allocation is expandedm the contents of the new part of the array are undefined.
+    If the allocation is expanded the contents of the new part of the array are undefined.
 
     b) doing nothing, if the new size is less than the old size.
 
