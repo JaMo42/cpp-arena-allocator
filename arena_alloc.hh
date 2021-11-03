@@ -54,6 +54,8 @@ struct Allocator
   [[nodiscard]] T *
   allocate (std::size_t n, const T *hint = nullptr)
   {
+    if (n == 0)
+      return nullptr;
     const detail::Lock lock {};
     return (reinterpret_cast<T *>
             (detail::allocate (n * sizeof (T),
@@ -71,6 +73,8 @@ struct Allocator
   void
   deallocate (T *p, std::size_t n)
   {
+    if (p == nullptr)
+      return;
     const detail::Lock lock {};
     detail::deallocate (reinterpret_cast<char *> (p), n * sizeof (T));
   }

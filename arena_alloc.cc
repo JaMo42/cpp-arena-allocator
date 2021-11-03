@@ -106,8 +106,6 @@ find_region_fitting (std::size_t n, const char *hint)
 char *
 allocate (std::size_t n, const char *hint)
 {
-  if (n == 0)
-    return nullptr;
   auto it = find_region_fitting (n, hint);
   if (it == S_regions.end ())
     {
@@ -123,8 +121,6 @@ allocate (std::size_t n, const char *hint)
 void
 deallocate (char *p, std::size_t n)
 {
-  if (p == nullptr)
-    return;
   const auto it = find_region_containing (p);
   if (it == S_regions.end ())
     return;
