@@ -73,7 +73,7 @@ The following types are automatically defined, if their STL headers are included
 - `arena::basic_string`
   - `arena::string`
   - `arena::wstring`
-  - `arena::u8string`
+  - `arena::u8string` (c++20)
   - `arena::u16string`
   - `arena::u32string`
 - `arena::deque`
