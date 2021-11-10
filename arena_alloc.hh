@@ -163,6 +163,20 @@ using u16string = basic_string<char16_t>;
 using u32string = basic_string<char32_t>;
 #endif
 
+#if ARENA_STL_INCLUDED (SSTREAM) && !defined (ARENA_HAS_SSTREAM_DEF)
+#define ARENA_HAS_SSTREAM_DEF
+template <class CharT, class TraitsT = std::char_traits<CharT>>
+using basic_stringstream = std::basic_stringstream<CharT, TraitsT, Allocator<CharT>>;
+using stringstream = basic_stringstream<char>;
+using wstringstream = basic_stringstream<wchar_t>;
+// non-standard:
+#if __cplusplus >= 202002L
+using u8stringstream = basic_stringstream<char8_t>;
+#endif
+using u16stringstream = basic_stringstream<char16_t>;
+using u32stringstream = basic_stringstream<char32_t>;
+#endif
+
 #if ARENA_STL_INCLUDED (DEQUE) && !defined (ARENA_HAS_DEQUE_DEF)
 #define ARENA_HAS_DEQUE_DEF
 template <class T>
