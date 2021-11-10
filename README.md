@@ -98,6 +98,12 @@ The following types are automatically defined, if their STL headers are included
 - `arena::unordered_multiset`
 - `arena::unordered_map`
 - `arena::unordered_multimap`
+- `arena::basic_stringstream`
+  - `arena::stringstream`
+  - `arena::wstringstream`
+  - `arena::u8stringstream` (non-standard, C++20)
+  - `arena::u16stringstream` (non-standard)
+  - `arena::u32stringstream` (non-standard)
 
 These have the same template arguments except for the allocator type.
 
