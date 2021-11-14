@@ -143,14 +143,13 @@ operator!= (const Allocator<T> &, const Allocator<T> &)
 
 #endif // !ARENA_ALLOC_HH
 
-// Checks if an STL header is included for gcc, clang and msvc
-#define ARENA_STL_INCLUDED(x)\
-    defined (_GLIBCXX_##x) || defined (_LIBCPP_##x) || defined (_##x##_)
-
 namespace arena
 {
 
-#if ARENA_STL_INCLUDED (STRING) && !defined (ARENA_HAS_STRING_DEF)
+#if ((defined (_GLIBCXX_STRING) \
+      || defined (_LIBCPP_STRING) \
+      || defined (_STRING_)) \
+     && !defined (ARENA_HAS_STRING_DEF))
 #define ARENA_HAS_STRING_DEF
 template <class CharT, class TraitsT = std::char_traits<CharT>>
 using basic_string = std::basic_string<CharT, TraitsT, Allocator<CharT>>;
@@ -163,7 +162,10 @@ using u16string = basic_string<char16_t>;
 using u32string = basic_string<char32_t>;
 #endif
 
-#if ARENA_STL_INCLUDED (SSTREAM) && !defined (ARENA_HAS_SSTREAM_DEF)
+#if ((defined (_GLIBCXX_SSTREAM) \
+      || defined (_LIBCPP_SSTREAM) \
+      || defined (_SSTREAM_)) \
+     && !defined (ARENA_HAS_SSTREAM_DEF))
 #define ARENA_HAS_SSTREAM_DEF
 template <class CharT, class TraitsT = std::char_traits<CharT>>
 using basic_stringstream = std::basic_stringstream<CharT, TraitsT, Allocator<CharT>>;
@@ -177,31 +179,46 @@ using u16stringstream = basic_stringstream<char16_t>;
 using u32stringstream = basic_stringstream<char32_t>;
 #endif
 
-#if ARENA_STL_INCLUDED (DEQUE) && !defined (ARENA_HAS_DEQUE_DEF)
+#if ((defined (_GLIBCXX_DEQUE) \
+      || defined (_LIBCPP_DEQUE) \
+      || defined (_DEQUE_)) \
+     && !defined (ARENA_HAS_DEQUE_DEF))
 #define ARENA_HAS_DEQUE_DEF
 template <class T>
 using deque = std::deque<T, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (VECTOR) && !defined (ARENA_HAS_VECTOR_DEF)
+#if ((defined (_GLIBCXX_VECTOR) \
+      || defined (_LIBCPP_VECTOR) \
+      || defined (_VECTOR_)) \
+     && !defined (ARENA_HAS_VECTOR_DEF))
 #define ARENA_HAS_VECTOR_DEF
 template <class T>
 using vector = std::vector<T, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (FORWARD_LIST) && !defined (ARENA_HAS_FORWARD_LIST_DEF)
+#if ((defined (_GLIBCXX_FORWARD_LIST) \
+      || defined (_LIBCPP_FORWARD_LIST) \
+      || defined (_FORWARD_LIST_)) \
+     && !defined (ARENA_HAS_FORWARD_LIST_DEF))
 #define ARENA_HAS_FORWARD_LIST_DEF
 template <class T>
 using forward_list = std::forward_list<T, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (LIST) && !defined (ARENA_HAS_LIST_DEF)
+#if ((defined (_GLIBCXX_LIST) \
+      || defined (_LIBCPP_LIST) \
+      || defined (_LIST_)) \
+     && !defined (ARENA_HAS_LIST_DEF))
 #define ARENA_HAS_LIST_DEF
 template <class T>
 using list = std::list<T, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (SET) && !defined (ARENA_HAS_SET_DEF)
+#if ((defined (_GLIBCXX_SET) \
+      || defined (_LIBCPP_SET) \
+      || defined (_SET_)) \
+     && !defined (ARENA_HAS_SET_DEF))
 #define ARENA_HAS_SET_DEF
 template <class T, class Compare = std::less<T>>
 using set = std::set<T, Compare, Allocator<T>>;
@@ -210,7 +227,10 @@ template <class T, class Compare=std::less<T>>
 using multiset = std::multiset<T, Compare, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (MAP) && !defined (ARENA_HAS_MAP_DEF)
+#if ((defined (_GLIBCXX_MAP) \
+      || defined (_LIBCPP_MAP) \
+      || defined (_MAP_)) \
+     && !defined (ARENA_HAS_MAP_DEF))
 #define ARENA_HAS_MAP_DEF
 template <class Key, class Value, class Compare = std::less<Key>>
 using map = std::map<Key, Value, Compare, Allocator<std::pair<const Key, Value>>>;
@@ -219,7 +239,10 @@ template <class Key, class Value, class Compare = std::less<Key>>
 using multimap = std::multimap<Key, Value, Compare, Allocator<std::pair<const Key, Value>>>;
 #endif
 
-#if ARENA_STL_INCLUDED (UNORDERED_SET) && !defined (ARENA_HAS_UNORDERED_SET_DEF)
+#if ((defined (_GLIBCXX_UNORDERED_SET)\
+      || defined (_LIBCPP_UNORDERED_SET) \
+      || defined (_UNORDERED_SET_)) \
+     && !defined (ARENA_HAS_UNORDERED_SET_DEF))
 #define ARENA_HAS_UNORDERED_SET_DEF
 template <class T, class Hash = std::hash<T>, class TEqual = std::equal_to<T>>
 using unordered_set = std::unordered_set<T, Hash, TEqual, Allocator<T>>;
@@ -228,7 +251,10 @@ template <class T, class Hash = std::hash<T>, class TEqual = std::equal_to<T>>
 using unordered_multiset = std::unordered_multiset<T, Hash, TEqual, Allocator<T>>;
 #endif
 
-#if ARENA_STL_INCLUDED (UNORDERED_MAP) && !defined (ARENA_HAS_UNORDERED_MAP_DEF)
+#if ((defined (_GLIBCXX_UNORDERED_MAP) \
+      || defined (_LIBCPP_UNORDERED_MAP) \
+      || defined (_UNORDERED_MAP_)) \
+     && !defined (ARENA_HAS_UNORDERED_MAP_DEF))
 #define ARENA_HAS_UNORDERED_MAP_DEF
 template <class Key, class Value, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>>
 using unordered_map = std::unordered_map<Key, Value, Hash, KeyEqual, Allocator<std::pair<const Key, Value>>>;
@@ -236,8 +262,6 @@ using unordered_map = std::unordered_map<Key, Value, Hash, KeyEqual, Allocator<s
 template <class Key, class Value, class Hash = std::hash<Key>, class KeyEqual = std::equal_to<Key>>
 using unordered_multimap = std::unordered_multimap<Key, Value, Hash, KeyEqual, Allocator<std::pair<const Key, Value>>>;
 #endif
-
-#undef ARENA_STL_INCLUDED
 
 }
 
