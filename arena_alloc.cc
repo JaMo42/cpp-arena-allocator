@@ -1,12 +1,14 @@
 #include "arena_alloc.hh"
-#include <memory>
 #include <vector>
 #include <mutex>
 #include <cstring>
-
-#ifndef _WIN32
-#include <sys/mman.h>
 #include <cstdio>
+#ifdef _WIN32
+#define WIN32_MEAN_AND_LEAN
+#define NOMINMAX
+#include <Windows.h>
+#else
+#include <sys/mman.h>
 #endif
 
 namespace arena
@@ -15,10 +17,28 @@ namespace detail
 {
 
 #ifdef _WIN32
-static std::allocator<char> S_alloc {};
 
-#define allocate_memory(n) S_alloc.allocate (n)
-#define deallocate_memory(p, n) S_alloc.deallocate (p, n)
+static inline char *
+allocate_memory (std::size_t n)
+{
+  void *p = VirtualAlloc (NULL, n, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  if (!p)
+    {
+      std::perror ("arena: VirtualAlloc failed");
+      exit (1);
+    }
+  return reinterpret_cast<char *> (p);
+}
+
+static inline void
+deallocate_memory (char *p, std::size_t n)
+{
+  if (!VirtualFree (reinterpret_cast<void *> (p), 0, MEM_RELEASE))
+    {
+      std::perror ("arena: VirtualFree failed");
+      exit (1);
+    }
+}
 
 #else
 
@@ -203,4 +223,3 @@ default_region_size ()
 } // namespace detail
 
 } // namespace arena
-
