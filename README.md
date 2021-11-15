@@ -16,8 +16,6 @@ The allocator is stateless, that is, all instances of the given allocator are in
 
 The allocator satisfies [allocator completeness requirements](https://en.cppreference.com/w/cpp/named_req/Allocator#Allocator_completeness_requirements).
 
-`std::allocator` is used as underlying allocator to allocate regions.
-
 ### Member types
 
 - `value_type` -> `T`
