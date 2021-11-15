@@ -1,6 +1,6 @@
 # cpp-arena-allocator
 
-Region based [allocator](https://en.cppreference.com/w/cpp/named_req/Allocator).
+Region based C++ [allocator](https://en.cppreference.com/w/cpp/named_req/Allocator).
 
 ## The allocator
 
