@@ -31,7 +31,7 @@ allocate_memory (std::size_t n)
 }
 
 static inline void
-deallocate_memory (char *p, std::size_t n)
+deallocate_memory (char *p, [[maybe_unused]] std::size_t n)
 {
   if (!VirtualFree (reinterpret_cast<void *> (p), 0, MEM_RELEASE))
     {
