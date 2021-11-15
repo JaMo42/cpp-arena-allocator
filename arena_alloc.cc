@@ -4,12 +4,48 @@
 #include <mutex>
 #include <cstring>
 
+#ifndef _WIN32
+#include <sys/mman.h>
+#include <cstdio>
+#endif
+
 namespace arena
 {
 namespace detail
 {
 
+#ifdef _WIN32
 static std::allocator<char> S_alloc {};
+
+#define allocate_memory(n) S_alloc.allocate (n)
+#define deallocate_memory(p, n) S_alloc.deallocate (p, n)
+
+#else
+
+static inline char *
+allocate_memory (std::size_t n)
+{
+  void *p = mmap (NULL, n, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE,
+                  -1, 0);
+  if (p == reinterpret_cast<void *> (-1LL))
+    {
+      std::perror ("arena: mmap failed");
+      exit (1);
+    }
+  return reinterpret_cast<char *> (p);
+}
+
+static inline void
+deallocate_memory (char *p, std::size_t n)
+{
+  if (munmap (reinterpret_cast<void *> (p), n))
+    {
+      std::perror ("arena: munmap failed");
+      exit (1);
+    }
+}
+
+#endif
 
 struct Region
 {
@@ -17,12 +53,12 @@ struct Region
 
   Region (std::size_t min_cap)
     : M_capacity (std::max (static_cast<std::size_t> (S_capacity), min_cap))
-    , M_data (S_alloc.allocate (M_capacity))
+    , M_data (allocate_memory (M_capacity))
     , M_size (0)
     , M_ref_count (0)
   {}
 
-  void destruct () { S_alloc.deallocate (M_data, M_capacity); }
+  void destruct () { deallocate_memory (M_data, M_capacity); }
 
   char * data () { return M_data; }
   char * top () { return M_data + M_size; }
