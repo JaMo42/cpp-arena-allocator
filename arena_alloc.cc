@@ -96,21 +96,24 @@ private:
   unsigned M_ref_count;
 };
 
-static std::vector<Region> S_regions {};
+using region_list = std::vector<Region>;
+using region_iterator = region_list::iterator;
 
-using region_iterator = decltype (S_regions)::iterator;
+static region_list *S_regions {};
 
 static struct RegionDeleter
 {
   RegionDeleter ()
   {
-    S_regions.reserve (4);
+    S_regions = new region_list ();
+    S_regions->reserve (4);
   }
 
   ~RegionDeleter ()
   {
-    for (auto &r : S_regions)
+    for (auto &r : *S_regions)
       r.destruct ();
+    delete S_regions;
   }
 } const S_region_deleter {};
 
@@ -129,8 +132,8 @@ Lock::~Lock ()
 static region_iterator
 find_region_containing (const char *p)
 {
-  const auto end = S_regions.end ();
-  for (auto it = S_regions.begin (); it != end; ++it)
+  const auto end = S_regions->end ();
+  for (auto it = S_regions->begin (); it != end; ++it)
     {
       if (p >= it->data () && p < it->top ())
         return it;
@@ -141,7 +144,7 @@ find_region_containing (const char *p)
 static region_iterator
 find_region_fitting (std::size_t n, const char *hint)
 {
-  const auto end = S_regions.end ();
+  const auto end = S_regions->end ();
   region_iterator it;
 
   if (hint)
@@ -151,7 +154,7 @@ find_region_fitting (std::size_t n, const char *hint)
         return it;
     }
 
-  for (it = S_regions.begin (); it != end; ++it)
+  for (it = S_regions->begin (); it != end; ++it)
     {
       if (it->top () + n < it->end ())
         return it;
@@ -163,10 +166,10 @@ char *
 allocate (std::size_t n, const char *hint)
 {
   auto it = find_region_fitting (n, hint);
-  if (it == S_regions.end ())
+  if (it == S_regions->end ())
     {
-      S_regions.emplace_back (n);
-      it = std::prev (S_regions.end ());
+      S_regions->emplace_back (n);
+      it = std::prev (S_regions->end ());
     }
   const auto r = it->top ();
   it->resize (n);
@@ -178,7 +181,7 @@ void
 deallocate (char *p, std::size_t n)
 {
   const auto it = find_region_containing (p);
-  if (it == S_regions.end ())
+  if (it == S_regions->end ())
     return;
   it->unref ();
   if (it->unused ())
@@ -193,7 +196,7 @@ reallocate (char *p, std::size_t from_n, std::size_t to_n, const char *hint)
   if (p == nullptr)
     return allocate (to_n, hint);
   const auto it = find_region_containing (p);
-  if (it == S_regions.end ())
+  if (it == S_regions->end ())
     return nullptr;
   if (to_n == 0)
     {
