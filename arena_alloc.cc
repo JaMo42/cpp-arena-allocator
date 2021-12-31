@@ -114,6 +114,7 @@ static struct RegionDeleter
     for (auto &r : *S_regions)
       r.destruct ();
     delete S_regions;
+    S_regions = nullptr;
   }
 } const S_region_deleter {};
 
@@ -180,6 +181,8 @@ allocate (std::size_t n, const char *hint)
 void
 deallocate (char *p, std::size_t n)
 {
+  if (S_regions == nullptr)
+    return;
   const auto it = find_region_containing (p);
   if (it == S_regions->end ())
     return;
