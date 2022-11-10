@@ -142,8 +142,22 @@ find_region_containing (const char *p)
   return end;
 }
 
+static inline std::ptrdiff_t
+alignment_offset (const char *ptr, std::size_t alignment)
+{
+  const auto off = alignment - reinterpret_cast<std::uintptr_t> (ptr) % alignment;
+  return off == alignment ? 0 : off;
+}
+
+static inline bool
+fits (const region_iterator region, std::size_t n, std::size_t alignment)
+{
+  n += alignment_offset (region->top (), alignment);
+  return region->top () + n < region->end ();
+}
+
 static region_iterator
-find_region_fitting (std::size_t n, const char *hint)
+find_region_fitting (std::size_t n, std::size_t alignment, const char *hint)
 {
   const auto end = S_regions->end ();
   region_iterator it;
@@ -151,27 +165,28 @@ find_region_fitting (std::size_t n, const char *hint)
   if (hint)
     {
       it = find_region_containing (hint);
-      if ((it != end) && (it->top () + n < it->end ()))
+      if ((it != end) && fits (it, n, alignment))
         return it;
     }
 
   for (it = S_regions->begin (); it != end; ++it)
     {
-      if (it->top () + n < it->end ())
+      if (fits (it, n, alignment))
         return it;
     }
   return end;
 }
 
 char *
-allocate (std::size_t n, const char *hint)
+allocate (std::size_t n, std::size_t alignment, const char *hint)
 {
-  auto it = find_region_fitting (n, hint);
+  auto it = find_region_fitting (n, alignment, hint);
   if (it == S_regions->end ())
     {
       S_regions->emplace_back (n);
       it = std::prev (S_regions->end ());
     }
+  it->resize (alignment_offset (it->top (), alignment));
   const auto r = it->top ();
   it->resize (n);
   it->ref ();
@@ -194,10 +209,11 @@ deallocate (char *p, std::size_t n)
 }
 
 char *
-reallocate (char *p, std::size_t from_n, std::size_t to_n, const char *hint)
+reallocate (char *p, std::size_t from_n, std::size_t to_n,
+            std::size_t alignment, const char *hint)
 {
   if (p == nullptr)
-    return allocate (to_n, hint);
+    return allocate (to_n, alignment, hint);
   const auto it = find_region_containing (p);
   if (it == S_regions->end ())
     return nullptr;
@@ -214,7 +230,7 @@ reallocate (char *p, std::size_t from_n, std::size_t to_n, const char *hint)
     }
   if (to_n <= from_n)
     return p;
-  char *const new_p = allocate (to_n, hint);
+  char *const new_p = allocate (to_n, alignment, hint);
   std::memcpy (new_p, p, from_n);
   deallocate (p, from_n);
   return new_p;

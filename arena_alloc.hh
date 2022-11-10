@@ -12,10 +12,10 @@ struct Lock
   Lock ();
   ~Lock ();
 };
-char * allocate (std::size_t n, const char *hint);
+char * allocate (std::size_t n, std::size_t alignment, const char *hint);
 void deallocate (char *p, std::size_t n);
 char * reallocate (char *p, std::size_t from_n, std::size_t to_n,
-                   const char *hint);
+                   std::size_t alignment, const char *hint);
 std::size_t default_region_size ();
 }
 
@@ -62,7 +62,7 @@ struct Allocator
       return nullptr;
     const detail::Lock lock {};
     return (reinterpret_cast<T *>
-            (detail::allocate (n * sizeof (T),
+            (detail::allocate (n * sizeof (T), alignof (T),
                                reinterpret_cast<const char *> (hint))));
   }
 
@@ -124,6 +124,7 @@ struct Allocator
     return (reinterpret_cast<T *>
             (detail::reallocate (reinterpret_cast<char *> (p),
                                  from_n * sizeof (T), to_n * sizeof (T),
+                                 alignof (T),
                                  reinterpret_cast<const char *> (hint))));
   }
 
