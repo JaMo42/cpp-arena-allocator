@@ -3,6 +3,7 @@
 #include <mutex>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #ifdef _WIN32
 #define WIN32_MEAN_AND_LEAN
 #define NOMINMAX
